@@ -130,4 +130,4 @@ if __name__ == '__main__':
     plot(MEE)
     # save data from modified LPA only
     MEE_LPA = generate_MEE_LPA_table()
-    np.savetxt('MEE_LPA.csv', MEE, delimiter=', ')
+    np.savetxt('MEE_LPA.csv', MEE_LPA, delimiter=', ')
