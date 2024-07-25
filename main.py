@@ -2,6 +2,7 @@ import numpy as np
 import pathlib
 import atomic_data as ad
 import matplotlib.pyplot as plt
+import matplotlib.colors
 import LPA
 
 def generate_MEE_table():
@@ -18,9 +19,11 @@ def generate_MEE_table():
         MEE[Z, :len(MEE_Z)] = MEE_Z
 
     # input H-like data from my calculations
-    MEE[:, 1] = np.array(ad.read_FAC())
+    MEE[:, 1] = np.array(ad.read_FAC_H())
     # # set He-like data from Sauer approximation (Sauer 2018)
-    MEE[1:, 2] = 14.99 * (np.square(np.array(range(1, len(MEE))) - 0.3))
+    # MEE[1:, 2] = 14.99 * (np.square(np.array(range(1, len(MEE))) - 0.3))
+    # input H-like data from my calculations
+    MEE[1:, 2] = np.array(ad.read_FAC_He())
     # input data from Sauer
     MEE[1:19, 1:19] = np.fliplr(ad.Sauer2018)
     MEE[21:31, 1:31] = np.fliplr(ad.Sauer2020)
@@ -38,13 +41,14 @@ def generate_MEE_LPA_table():
     return MEE[1:,1:]
 
 
-def plot(MEE):
+def plot(MEE, format='.svg'):
     # set plot Z range
     n = len(MEE)
 
     # set color for lines
     ax = plt.axes()
-    ax.set_prop_cycle('color', [plt.cm.jet(i) for i in np.linspace(0, 1, n)])
+    colors = [plt.cm.jet(i) for i in np.linspace(0, 1, n)]
+    ax.set_prop_cycle('color', colors)
     # ax.set_prop_cycle('color',[plt.cm.nipy_spectral(i) for i in np.linspace(0, 1, n)])
 
 
@@ -83,9 +87,17 @@ def plot(MEE):
     plt.plot(range(1, min(n, len(ad.NIST))), ad.NIST[1:min(n, len(ad.NIST))], color='k', linewidth=0.5)
     print("Black line represents NIST data for neutral atoms")
 
-    plt.legend()
+    plt.savefig(f'MEE{format}', bbox_inches="tight")
 
-    plt.savefig('MEE.svg', bbox_inches="tight")
+    # draw a new figure and replot the colorbar there
+    cmap = matplotlib.colors.LinearSegmentedColormap.from_list('colormap', colors, N=n)
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=1, vmax=n))
+    plt.colorbar(sm)
+
+    fig, ax = plt.subplots(figsize=(1,3))
+    plt.colorbar(sm, ticks=[1, n], fraction=0.6, aspect=5)
+    ax.remove()
+    plt.savefig(f'plot_onlycbar_tight{format}',bbox_inches='tight')
 
 
 def saveMEE2cpp(MEE, outputfile, Z_max=86, realtype='real_t'):

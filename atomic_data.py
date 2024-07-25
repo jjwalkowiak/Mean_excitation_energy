@@ -16,7 +16,17 @@ NIST = [ 0, 19.20 , 41.80 , 40.00 , 63.70 , 76.00 , 78.00 , 82.00 , 95.00 , 115.
 
 
 # Data calculate by me in FAC for H-like ions
-def read_FAC(file='MEE_FAC_results.txt'):
+def read_FAC_H(file='MEE_FAC_H_results.txt'):
+    H_FAC = [np.nan]
+    with open(file) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter='\t')
+        for row in csv_reader:
+            if row[1] != 'MEE':
+                H_FAC.append(float(row[1]))
+
+    return H_FAC
+
+def read_FAC_He(file='MEE_FAC_He_results.txt'):
     H_FAC = [np.nan]
     with open(file) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter='\t')
